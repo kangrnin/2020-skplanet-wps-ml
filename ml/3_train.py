@@ -29,7 +29,8 @@ log.basicConfig(handlers=[handler], level=log.INFO)
 log.info(f'{datetime.now()} ------- generating model for {pos_name} -------')
 
 # data_path에 있는 모든 데이터파일을 dataframe으로 불러와 합치기 + 없는 값(NaN)을 0으로 채우기
-df_all = pd.concat([pd.read_csv(path, encoding='utf-8') for path in data_path.glob('**/*') if path.is_file()]).fillna(0)
+train_dfs = [pd.read_csv(f, encoding='utf-8') for f in data_path.glob('**/*') if f.is_file()]
+df_all = pd.concat(train_dfs, ignore_index=True).fillna(0)
 # 'rp' column을 맨 뒤로 보내기
 df_all = df_all[[col for col in df_all.columns if col != 'rp'] + ['rp']]
 for rp in np.unique(df_all['rp']):
@@ -47,6 +48,7 @@ y = df_all.iloc[:,-1].values
 
 kf = KFold(n_splits=5, shuffle=True, random_state=12321)
 
+# Random Forest
 log.info(f'{datetime.now()} Random Forest Classifier :')
 fold_n = 1
 for train_idx, test_idx in kf.split(X):
@@ -60,16 +62,15 @@ for train_idx, test_idx in kf.split(X):
     acc_test = accuracy_score(y_test, clf.predict(X_test))
 
     log.info(f'{datetime.now()} FOLD #{fold_n} TRAIN ACC: {acc_train:.2f} / TEST ACC: {acc_test:.2f}')
-
     fold_n += 1
 
 
 clf = RandomForestClassifier(n_estimators=100, n_jobs=-1, random_state=42)
 clf.fit(X, y)
-
 joblib.dump(clf, model_path / 'model_rdf.plk')
 log.info(f'{datetime.now()} model for {pos_name} generated successfully')
 
+# SVM
 log.info(f'{datetime.now()} SVM Classifier :')
 fold_n = 1
 for train_idx, test_idx in kf.split(X):
@@ -83,12 +84,10 @@ for train_idx, test_idx in kf.split(X):
     acc_test = accuracy_score(y_test, clf.predict(X_test))
 
     log.info(f'FOLD #{fold_n} TRAIN ACC: {acc_train} / TEST ACC: {acc_test}')
-
     fold_n += 1
 
 
 clf = svm.SVC(kernel = 'rbf', probability=True)
 clf.fit(X, y)
-
 joblib.dump(clf, model_path /  'model_svm.plk')
 log.info(f'{datetime.now()} model for {pos_name} generated successfully')
