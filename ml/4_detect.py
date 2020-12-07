@@ -3,10 +3,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import joblib
-from wifi_scan_bssid import get_wifis
 from collections import defaultdict
 
+lines = sys.stdin.readlines()
+user_wifi = json.loads(lines[0])
 position = sys.argv[1]
+
 model_path = Path('../ml_model') / position
 model_rdf = joblib.load(model_path / 'model_rdf.plk')
 model_svm = joblib.load(model_path / 'model_svm.plk')
