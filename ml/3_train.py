@@ -18,12 +18,12 @@ sys.stderr.reconfigure(encoding='utf-8')
 
 pos_name = sys.argv[1]
 
-data_path = Path('../train_data') / pos_name
-model_path = Path('../ml_model') / pos_name
+data_path = Path(__file__).parent / '../train_data' / pos_name
+model_path = Path(__file__).parent / '../ml_model' / pos_name
 data_path.mkdir(parents=True, exist_ok=True)
 model_path.mkdir(parents=True, exist_ok=True)
 
-handler = log.FileHandler(base_path / '../log/train.log', 'a+', 'utf-8')
+handler = log.FileHandler(Path(__file__).parent / '../log/train.log', 'a+', 'utf-8')
 log.basicConfig(handlers=[handler], level=log.INFO)
 log.info(f'{datetime.now()} ------- generating model for {pos_name} -------')
 

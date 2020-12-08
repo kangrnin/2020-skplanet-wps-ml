@@ -11,17 +11,20 @@ sys.stdin.reconfigure(encoding='utf-8')
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stderr.reconfigure(encoding='utf-8')
 
-pos_name = sys.argv[1]
-df_pos = pd.read_csv(Path('../wifi_data') / '../wifi_data' / pos_name / 'wifi_all.csv')
+lines = sys.stdin.readlines()
+scan_wifi = json.loads(lines[0])
+pos_name, lat, lon = sys.argv[1:4]
 
-Path('../log').mkdir(parents=True, exist_ok=True)
-handler = log.FileHandler(log_path / 'preprocess.log', 'a+', 'utf-8')
+df_pos = pd.DataFrame.from_records(scan_wifi)
+
+(Path(__file__).parent / '../log').mkdir(parents=True, exist_ok=True)
+handler = log.FileHandler(Path(__file__).parent / '../log/preprocess.log', 'a+', 'utf-8')
 log.basicConfig(handlers=[handler], level=log.INFO)
 
 cur_time = datetime.now().strftime("%Y%m%d-%H%M%S")
 
 for rp_name, df_rp in df_pos.groupby('rp'):
-    rp_path = Path('../train_data') / pos_name / rp_name
+    rp_path = Path(__file__).parent / '../train_data' / pos_name / rp_name
     rp_path.mkdir(parents=True, exist_ok=True)
 
     dict_rp = defaultdict(lambda : defaultdict(int).fromkeys(df_rp['bssid'], 0))
