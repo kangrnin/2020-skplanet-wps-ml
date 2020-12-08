@@ -84,7 +84,7 @@ for train_idx, test_idx in kf.split(X):
     acc_train = accuracy_score(y_train, clf.predict(X_train))
     acc_test = accuracy_score(y_test, clf.predict(X_test))
 
-    log.info(f'FOLD #{fold_n} TRAIN ACC: {acc_train} / TEST ACC: {acc_test}')
+    log.info(f'{datetime.now()} FOLD #{fold_n} TRAIN ACC: {acc_train} / TEST ACC: {acc_test}')
     fold_n += 1
 
 
